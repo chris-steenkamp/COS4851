@@ -4,23 +4,44 @@ initial([3,3,1]).
 % All missionaries and cannibals + boat is across the river.
 goal([0,0,0]).
 
-solve :-
+solveDFS :-
     initial(Start),
-    bfs([], Start, Solution),
+    dfs([], Start, Solution),
     write(Solution),nl.
 
-
 % If goal node is in path then we have a solution.
-bfs(Path, Node, [Node|Path]) :-
+dfs(Path, Node, [Node|Path]) :-
     goal(Node).
 
 % If we can move from a node to another node and we have not
 % already traversed that path then continue searching for goal.
-bfs(Path, Node, Solution) :-
+dfs(Path, Node, Solution) :-
     s(Node, Node1),
-    not(member(Node1, Path)),
-    bfs([Node|Path], Node1, Solution).
+    \+(member(Node1, Path)),
+    dfs([Node|Path], Node1, Solution).
 
+solveBFS :-
+    initial(Start),
+    bfs([[Start]], Solution),
+    write(Solution),nl.
+
+% If goal node is in path then we have a solution.
+bfs([[Node|Path]|_], [Node|Path]) :-
+    goal(Node),
+    !.
+
+bfs([Path|Paths], Solution) :-
+    extend(Path, NewPaths),
+    append(Paths, NewPaths, Paths1),
+    bfs(Paths1,Solution).
+    
+extend([Node|Path], NewPaths) :-
+    bagof([NewNode, Node | Path],
+    (s(Node,NewNode), not(member(NewNode, [Node | Path]))),
+    NewPaths),
+    !.
+
+extend(Path, []).
 
 % State transition is valid if there is a safe move from S1 to S2
 s(S1, S2) :-
