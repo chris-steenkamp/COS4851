@@ -33,7 +33,7 @@ bfsq(Solution) :-
     % push generated successors into queue
     assertz(queue(Paths1)),
     bfsq(Solution).
-    
+
 extend([Node|Path], NewPaths) :-
     bagof([NewNode, Node | Path],
     (s(Node,NewNode), not(member(NewNode, [Node | Path]))),
@@ -46,7 +46,6 @@ extend(_, []).
 s(S1, S2) :-
     move(S1, S2),
     safe(S2).
-
 
 % Move one missionary across
 move([M,C, 1], [M2, C, 0]) :-

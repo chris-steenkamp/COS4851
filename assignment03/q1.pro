@@ -60,7 +60,6 @@ move([S1, S2, S3, S41, S41], [S1, S2, S3, S4, S4], C) :-
 % The bridge allows soldiers to cross from the north to the south.
 cross(n,s).
 
-
 solve :-
     initial(Start),
     depthfirst([], Start, Solution, C),
@@ -70,12 +69,10 @@ solve :-
     write(' minutes.'),
     nl.
 
-
 % If the current node is a goal then the cost is 0.
 depthfirst(Path, Node, [Node|Path], C) :-
     goal(Node),
     C is 0.
-
 
 % Perform depth first search a goal, counting how long it takes.
 % Do not process paths which have already been explored.
@@ -83,4 +80,4 @@ depthfirst(Path, Node, Solution, C) :-
     move(Node, Node1, MoveCost),
     \+(member(Node1, Path)),
     depthfirst([Node|Path], Node1, Solution, RecMove),
-    C is MoveCost + RecMove.    
+    C is MoveCost + RecMove.
