@@ -4,36 +4,35 @@ initial([3,3,1]).
 % All missionaries and cannibals + boat is across the river.
 goal([0,0,0]).
 
-solveDFS :-
+% Breadth first algorithm which uses a queue to store the paths to be explored.
+% It does this by asserting generated nodes at the end of the database and then
+% retracts them as they are processed.
+solveBFSQ :-
     initial(Start),
-    dfs([], Start, Solution),
+    % Start by pushing the initial starting node into the queue.
+    assertz(queue([[Start]])),
+    bfsq(Solution),
     write(Solution),nl.
 
 % If goal node is in path then we have a solution.
-dfs(Path, Node, [Node|Path]) :-
-    goal(Node).
-
-% If we can move from a node to another node and we have not
-% already traversed that path then continue searching for goal.
-dfs(Path, Node, Solution) :-
-    s(Node, Node1),
-    \+(member(Node1, Path)),
-    dfs([Node|Path], Node1, Solution).
-
-solveBFS :-
-    initial(Start),
-    bfs([[Start]], Solution),
-    write(Solution),nl.
-
-% If goal node is in path then we have a solution.
-bfs([[Node|Path]|_], [Node|Path]) :-
+% Remove the item from the queue after verifying goal.
+bfsq([Node|Path]) :-
+    queue([[Node|Path]|_]),
     goal(Node),
-    !.
+    retract(queue([[Node|Path]|_])).
 
-bfs([Path|Paths], Solution) :-
+% Perform breadth-first by generating all potential successor nodes
+% and pushing them into the queue for processing.
+bfsq(Solution) :-
+    % Find the first path which is in the queue.
+    queue([Path|Paths]),
+    % Pop this fact from the queue
+    retract(queue([Path|Paths])),
     extend(Path, NewPaths),
     append(Paths, NewPaths, Paths1),
-    bfs(Paths1,Solution).
+    % push generated successors into queue
+    assertz(queue(Paths1)),
+    bfsq(Solution).
     
 extend([Node|Path], NewPaths) :-
     bagof([NewNode, Node | Path],
@@ -41,7 +40,7 @@ extend([Node|Path], NewPaths) :-
     NewPaths),
     !.
 
-extend(Path, []).
+extend(_, []).
 
 % State transition is valid if there is a safe move from S1 to S2
 s(S1, S2) :-
